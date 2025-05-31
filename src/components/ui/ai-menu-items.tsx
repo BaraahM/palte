@@ -17,6 +17,7 @@ import {
   Check,
   CornerUpLeft,
   FeatherIcon,
+  Languages,
   ListEnd,
   ListMinus,
   ListPlus,
@@ -139,6 +140,7 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
       });
     },
   },
+  
   insertBelow: {
     icon: <ListEnd />,
     label: 'Insert below',
@@ -146,7 +148,8 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     onSelect: ({ aiEditor, editor }) => {
       void editor.getTransforms(AIChatPlugin).aiChat.insertBelow(aiEditor);
     },
-  },
+  },  
+
   makeLonger: {
     icon: <ListPlus />,
     label: 'Make longer',
@@ -199,6 +202,16 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
       });
     },
   },
+  translate: {
+    icon: <Languages />,
+    label: 'Translate',
+    value: 'translate',
+    onSelect: ({ setTranslateMode }) => {
+      setTranslateMode?.(true); //
+    },
+  },
+
+
   tryAgain: {
     icon: <CornerUpLeft />,
     label: 'Try again',
@@ -208,23 +221,25 @@ Start writing a new paragraph AFTER <Document> ONLY ONE SENTENCE`
     },
   },
 } satisfies Record<
-  string,
-  {
-    icon: React.ReactNode;
-    label: string;
-    value: string;
-    component?: React.ComponentType<{ menuState: EditorChatState }>;
-    filterItems?: boolean;
-    items?: { label: string; value: string }[];
-    shortcut?: string;
-    onSelect?: ({
-      aiEditor,
-      editor,
-    }: {
-      aiEditor: SlateEditor;
-      editor: PlateEditor;
-    }) => void;
-  }
+string,
+{
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  component?: React.ComponentType<{ menuState: EditorChatState }>;
+  filterItems?: boolean;
+  items?: { label: string; value: string }[];
+  shortcut?: string;
+  onSelect?: ({
+    aiEditor,
+    editor,
+    setTranslateMode,
+  }: {
+    aiEditor: SlateEditor;
+    editor: PlateEditor;
+    setTranslateMode?: (v: boolean) => void;
+  }) => void;
+}
 >;
 
 const menuStateItems: Record<
@@ -254,6 +269,7 @@ const menuStateItems: Record<
     {
       items: [
         aiChatItems.improveWriting,
+        aiChatItems.translate, // 22
         aiChatItems.emojify,
         aiChatItems.makeLonger,
         aiChatItems.makeShorter,
@@ -273,12 +289,14 @@ const menuStateItems: Record<
     },
   ],
 };
-
 export const AIMenuItems = ({
+  setTranslateMode,
   setValue,
 }: {
+  setTranslateMode: (v: boolean) => void;
   setValue: (value: string) => void;
 }) => {
+
   const editor = useEditorRef();
   const { messages } = usePluginOption(AIChatPlugin, 'chat');
   const aiEditor = usePluginOption(AIChatPlugin, 'aiEditor')!;
@@ -294,7 +312,6 @@ export const AIMenuItems = ({
 
   const menuGroups = React.useMemo(() => {
     const items = menuStateItems[menuState];
-
     return items;
   }, [menuState]);
 
@@ -317,6 +334,7 @@ export const AIMenuItems = ({
                 menuItem.onSelect?.({
                   aiEditor,
                   editor: editor,
+                  setTranslateMode, 
                 });
               }}
             >

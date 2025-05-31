@@ -20,6 +20,7 @@ import {
 import { Command as CommandPrimitive } from 'cmdk';
 import { Loader2Icon } from 'lucide-react';
 
+import { useChat } from '@/components/editor/use-chat';
 import { Command, CommandList } from '@/components/ui/command';
 import {
   Popover,
@@ -27,7 +28,6 @@ import {
   PopoverContent,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { useChat } from '@/components/editor/use-chat';
 
 import { AIChatEditor } from './ai-chat-editor';
 import { AIMenuItems } from './ai-menu-items';
@@ -48,6 +48,9 @@ export function AIMenu() {
     null
   );
 
+  const [translateMode, setTranslateMode] = React.useState(false);
+  const [targetLanguage, setTargetLanguage] = React.useState('');
+
   const content = useLastAssistantMessage()?.content;
 
   React.useEffect(() => {
@@ -66,6 +69,8 @@ export function AIMenu() {
       api.aiChat.show();
     } else {
       api.aiChat.hide();
+      setTranslateMode(false);
+      setTargetLanguage('');
     }
   };
 
@@ -83,6 +88,8 @@ export function AIMenu() {
       if (!open) {
         setAnchorElement(null);
         setInput('');
+        setTranslateMode(false);
+        setTargetLanguage('');
       }
     },
     onOpenCursor: () => {
@@ -111,9 +118,9 @@ export function AIMenu() {
 
   useHotkeys('esc', () => {
     api.aiChat.stop();
-
-    // remove when you implement the route /api/ai/command
     chat._abortFakeStream();
+    setTranslateMode(false);
+    setTargetLanguage('');
   });
 
   const isLoading = status === 'streaming' || status === 'submitted';
@@ -133,8 +140,9 @@ export function AIMenu() {
         }}
         onEscapeKeyDown={(e) => {
           e.preventDefault();
-
           api.aiChat.hide();
+          setTranslateMode(false);
+          setTargetLanguage('');
         }}
         align="center"
         side="bottom"
@@ -153,6 +161,33 @@ export function AIMenu() {
               <Loader2Icon className="size-4 animate-spin" />
               {messages.length > 1 ? 'Editing...' : 'Thinking...'}
             </div>
+          ) : translateMode ? (
+            <CommandPrimitive.Input
+              className={cn(
+                'flex h-9 w-full min-w-0 border-input bg-transparent px-3 py-1 text-base transition-[color,box-shadow] outline-none placeholder:text-muted-foreground md:text-sm dark:bg-input/30',
+                'aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40',
+                'border-b focus-visible:ring-transparent'
+              )}
+              value={targetLanguage}
+              onKeyDown={e => {
+                if (isHotkey('enter')(e) && targetLanguage.trim()) {
+                  e.preventDefault();
+                  void editor.getApi(AIChatPlugin).aiChat.submit({
+                    prompt: `Translate the selected text to ${targetLanguage}`,
+                  });
+                  setTranslateMode(false);
+                  setTargetLanguage('');
+                 // setOpen(false);
+                }
+                if (isHotkey('esc')(e)) {
+                  setTranslateMode(false);
+                  setTargetLanguage('');
+                }
+              }}
+              onValueChange={setTargetLanguage}
+              placeholder="Enter target language (e.g. French)…"
+              autoFocus
+            />
           ) : (
             <CommandPrimitive.Input
               className={cn(
@@ -178,9 +213,9 @@ export function AIMenu() {
             />
           )}
 
-          {!isLoading && (
+          {!isLoading && !translateMode && (
             <CommandList>
-              <AIMenuItems setValue={setValue} />
+              <AIMenuItems setTranslateMode={setTranslateMode} setValue={setValue} />
             </CommandList>
           )}
         </Command>

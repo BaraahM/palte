@@ -1,4 +1,5 @@
 'use client';
+import * as React from 'react';
 
 import type { Value } from '@udecode/plate';
 
@@ -178,6 +179,86 @@ export const useCreateEditor = (
   } & Omit<CreatePlateEditorOptions, 'plugins'> = {},
   deps: any[] = []
 ) => {
+  const initialValue = React.useMemo(() => {
+    return [
+      {
+        children: [{ text: "Co-Founders' Agreement" }],
+        type: 'h1',
+      },
+      {
+        children: [{ text: '1. Roles and Responsibilities' }],
+        type: 'h1',
+      },
+      {
+        children: [{ text: '1.1 Flexible Roles' }],
+        type: 'h2',
+      },
+      {
+        children: [
+          {
+            text: 'The Co-Founders acknowledge and agree that the roles and responsibilities within the Company will be dynamic and subject to change as the business evolves. Each Co-Founder commits to adapting their role as necessary for the benefit of the Company.',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [{ text: '1.2 Initial Role Allocation' }],
+        type: 'h2',
+      },
+      {
+        children: [
+          {
+            text: 'Notwithstanding the flexible nature of the roles, the initial primary responsibilities of each Co-Founder shall be as follows:',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            text: 'Co-Founder 1: [DESCRIPTION OF INITIAL RESPONSIBILITIES]',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            text: 'Co-Founder 2: [DESCRIPTION OF INITIAL RESPONSIBILITIES]',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [
+          {
+            text: 'Co-Founder 3: [DESCRIPTION OF INITIAL RESPONSIBILITIES]',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [{ text: '1.3 Duty to Company Success' }],
+        type: 'h2',
+      },
+      {
+        children: [
+          {
+            text: 'Each Co-Founder hereby affirms and agrees that their primary and overriding obligation shall be to promote and ensure the success of the Company. This obligation shall take precedence over individual interests or preferences in all business-related decisions and actions.',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [{ text: '2. Equity Distribution' }],
+        type: 'h1',
+      },
+      {
+        children: [{ text: '2.1 Initial Equity' }],
+        type: 'h2',
+      },
+    ];
+  }, []);
   return usePlateEditor<Value, (typeof editorPlugins)[number]>(
     {
       override: {
@@ -197,22 +278,8 @@ export const useCreateEditor = (
         FixedToolbarPlugin,
         FloatingToolbarPlugin,
       ],
-      value: [
-        {
-          children: [{ text: 'Playground' }],
-          type: 'h1',
-        },
-        {
-          children: [
-            { text: 'A rich-text editor with AI capabilities. Try the ' },
-            { bold: true, text: 'AI commands' },
-            { text: ' or use ' },
-            { kbd: true, text: 'Cmd+J' },
-            { text: ' to open the AI menu.' },
-          ],
-          type: ParagraphPlugin.key,
-        },
-      ],
+      value: initialValue,
+
       ...options,
     },
     deps
