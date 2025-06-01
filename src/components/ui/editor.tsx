@@ -81,8 +81,8 @@ const editorVariants = cva(
         comment: cn('rounded-none border-none bg-transparent text-sm'),
         default:
           'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
-        demo: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
-        fullWidth: 'size-full px-16 pt-4 pb-72 text-base sm:px-24',
+          demo: 'size-full px-6 pt-4 pb-72 text-base sm:px-[max(6px,calc(35%-350px))]',
+          fullWidth: 'size-full px-16 pt-4 pb-72 text-base sm:px-24',
         none: '',
         select: 'px-3 py-2 text-base data-readonly:w-fit',
       },
@@ -115,3 +115,23 @@ export const Editor = React.forwardRef<HTMLDivElement, EditorProps>(
 );
 
 Editor.displayName = 'Editor';
+
+// Placeholder Editable component
+const Editable = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { readOnly?: boolean }
+>(({ className, readOnly, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'relative max-w-full word-wrap break-word outline-none text-left [&_strong]:font-bold',
+        !readOnly &&
+          'focus-visible:shadow-[inset_0_0_0_2px_rgb(248_113_113)] focus-visible:shadow-red-400/20',
+        className
+      )}
+      {...props}
+      contentEditable={!readOnly}
+    />
+  );
+});

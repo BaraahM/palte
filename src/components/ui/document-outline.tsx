@@ -28,16 +28,28 @@ function getHeadingList(editor: SlateEditor): HeadingItem[] {
   
   nodes.forEach((node, index) => {
     if (isHeading(node)) {
-      const headingKeys = Object.values(HEADING_KEYS);
-      const level = headingKeys.indexOf(node.type as string) + 1;
-      const title = node.children?.map((child: any) => child.text || '').join('') || '';
+      const headingKeys = Object.values(HEADING_KEYS) as string[];
+      const nodeType = node.type as keyof typeof HEADING_KEYS;
+      const level = headingKeys.indexOf(nodeType) + 1;
       
-      if (title.trim()) {
+      // Extract text more robustly, handling nested structures
+      const extractText = (children: any[]): string => {
+        return children.map((child: any) => {
+          if (typeof child === 'string') return child;
+          if (child.text) return child.text;
+          if (child.children) return extractText(child.children);
+          return '';
+        }).join('').trim();
+      };
+      
+      const title = node.children ? extractText(node.children) : '';
+      
+      if (title) {
         headings.push({
           id: `heading-${index}`,
           level,
           path: [index],
-          title: title.trim(),
+          title: title.replace(/\s+/g, ' ').trim(), // Normalize whitespace
         });
       }
     }
@@ -53,15 +65,94 @@ export function DocumentOutline({ editor }: DocumentOutlineProps) {
   );
 
   const scrollToHeading = (path: number[]) => {
-    const element = document.querySelector(`[data-slate-node="element"][data-slate-path="${path.join(',')}"]`);
+    const targetHeading = headingList.find(h => h.path.join(',') === path.join(','));
+    if (!targetHeading) return;
+
+    // Try multiple approaches to find the heading element
+    let element: Element | null = null;
+    
+    // Method 1: Try data attribute selectors
+    const selectors = [
+      `[data-slate-node="element"][data-slate-path="${path.join(',')}"]`,
+      `[data-slate-path="${path.join(',')}"]`,
+      `[data-path="${path.join(',')}"]`
+    ];
+    
+    for (const selector of selectors) {
+      element = document.querySelector(selector);
+      if (element) break;
+    }
+    
+    // Method 2: Find by exact text content match
+    if (!element) {
+      const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, [data-slate-node="element"]');
+      for (const heading of allHeadings) {
+        const headingText = heading.textContent?.trim();
+        if (headingText === targetHeading.title) {
+          element = heading;
+          break;
+        }
+      }
+    }
+    
+    // Method 3: Find by partial text content match (for multi-line headings)
+    if (!element) {
+      const allHeadings = document.querySelectorAll('h1, h2, h3, h4, h5, h6, [data-slate-node="element"]');
+      for (const heading of allHeadings) {
+        const headingText = heading.textContent?.trim().replace(/\s+/g, ' ');
+        const targetText = targetHeading.title.trim().replace(/\s+/g, ' ');
+        if (headingText && targetText && 
+            (headingText.includes(targetText) || targetText.includes(headingText))) {
+          element = heading;
+          break;
+        }
+      }
+    }
+    
+    // Method 4: Try to find by searching within editor content
+    if (!element) {
+      const editorContent = document.querySelector('[data-slate-editor="true"]');
+      if (editorContent) {
+        const walker = document.createTreeWalker(
+          editorContent,
+          NodeFilter.SHOW_ELEMENT,
+          {
+            acceptNode: (node) => {
+              const element = node as Element;
+              const text = element.textContent?.trim();
+              return text === targetHeading.title ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+            }
+          }
+        );
+        
+        let node;
+        while (node = walker.nextNode()) {
+          element = node as Element;
+          break;
+        }
+      }
+    }
+    
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Account for the fixed header and toolbar height
+      const headerHeight = 60;
+      const toolbarHeight = 49;
+      const offset = headerHeight + toolbarHeight + 20;
+      
+      const elementTop = element.getBoundingClientRect().top + window.pageYOffset;
+      const targetPosition = elementTop - offset;
+      
+      window.scrollTo({
+        behavior: 'smooth',
+        top: targetPosition
+      });
+    } else {
+      console.warn('Could not find heading element for:', targetHeading.title);
     }
   };
 
   return (
-    <div className="space-y-1">
-      <h3 className="text-sm font-medium text-muted-foreground mb-3">Document Outline</h3>
+    <div className="fixed top-20 left-0 h-screen w-64 border-r border-border bg-background p-4 overflow-y-auto">
       
       {headingList.length > 0 ? (
         <div className="space-y-1">
