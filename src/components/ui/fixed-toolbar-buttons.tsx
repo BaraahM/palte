@@ -4,6 +4,16 @@ import * as React from 'react';
 
 import { FilePlugin, ImagePlugin } from '@udecode/plate-media/react';
 import { useEditorReadOnly } from '@udecode/plate/react';
+import {
+  BoldIcon,
+  Code2Icon,
+  ItalicIcon,
+  PaletteIcon,
+  StrikethroughIcon,
+  SubscriptIcon,
+  SuperscriptIcon,
+  UnderlineIcon,
+} from 'lucide-react';
 
 import { AIToolbarButton } from './ai-toolbar-button';
 import { AlignDropdownMenu } from './align-dropdown-menu';
@@ -42,27 +52,45 @@ export function FixedToolbarButtons() {
           </ToolbarGroup>
 
           <ToolbarGroup>
-            <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)" />
-            <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)" />
+            <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
+              <BoldIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
+              <ItalicIcon />
+            </MarkToolbarButton>
             <MarkToolbarButton
               nodeType="underline"
               tooltip="Underline (⌘+U)"
-            />
+            >
+              <UnderlineIcon />
+            </MarkToolbarButton>
             <MarkToolbarButton
               nodeType="strikethrough"
               tooltip="Strikethrough (⌘+⇧+M)"
-            />
-            <MarkToolbarButton nodeType="code" tooltip="Code (⌘+E)" />
-            <MarkToolbarButton nodeType="superscript" tooltip="Superscript" />
-            <MarkToolbarButton nodeType="subscript" tooltip="Subscript" />
+            >
+              <StrikethroughIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="code" tooltip="Code (⌘+E)">
+              <Code2Icon />
+              </MarkToolbarButton>
+            <MarkToolbarButton nodeType="superscript" tooltip="Superscript">
+              <SuperscriptIcon />
+            </MarkToolbarButton>
+            <MarkToolbarButton nodeType="subscript" tooltip="Subscript">
+              <SubscriptIcon />
+            </MarkToolbarButton>
           </ToolbarGroup>
 
           <ToolbarGroup>
-            <ColorDropdownMenu nodeType="color" tooltip="Text Color" />
+            <ColorDropdownMenu nodeType="color" tooltip="Text Color">
+              <PaletteIcon />
+            </ColorDropdownMenu>
             <ColorDropdownMenu
               nodeType="backgroundColor"
               tooltip="Highlight Color"
-            />
+            >
+              <PaletteIcon />
+            </ColorDropdownMenu>
           </ToolbarGroup>
 
           <ToolbarGroup>

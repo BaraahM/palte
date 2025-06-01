@@ -28,7 +28,7 @@ export function useVersionHistory() {
       content: [],
       date: new Date(),
       isCurrent: true,
-      name: 'Current version',
+      name: 'Default version',
     },
   ]);
 
@@ -65,7 +65,7 @@ export function useVersionHistory() {
     if (editor && version.content) {
       // For current version, use its saved content, or default if empty
       let contentToLoad = version.content;
-      if (version.name === 'default version' && (!version.content || version.content.length === 0)) {
+      if (version.name === 'Current version' && (!version.content || version.content.length === 0)) {
         contentToLoad = getDefaultContent();
       }
 
@@ -90,7 +90,7 @@ export function useVersionHistory() {
         try {
           editor.children = fallbackContent;
           if (typeof editor.onChange === 'function') {
-            editor.onChange(validContent);
+          editor.onChange(validContent);
           }
         } catch (fallbackError) {
           console.error('Error with fallback content:', fallbackError);

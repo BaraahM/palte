@@ -5,12 +5,22 @@ import { generateText } from 'ai';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
+  let body;
+  try {
+    body = await req.json();
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Invalid JSON in request body' },
+      { status: 400 }
+    );
+  }
+
   const {
     apiKey: key,
     model = 'gpt-4o-mini',
     prompt,
     system,
-  } = await req.json();
+  } = body;
 
   const apiKey = key || process.env.OPENAI_API_KEY;
 

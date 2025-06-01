@@ -257,6 +257,44 @@ export const useCreateEditor = (
         children: [{ text: '2.1 Initial Equity' }],
         type: 'h2',
       },
+      {//
+        children: [
+          {
+            text: 'The total equity of the Company shall be divided among the Co-Founders as follows:',
+          },
+        ],
+        type: 'p',
+      },
+      {//
+        children: [
+          {
+            text: 'Co-Founder 1: [PERCENTAGE]%',
+          },
+        ],
+        type: 'p',
+      },
+      {//
+        children: [
+          {
+            text: 'Co-Founder 2: [PERCENTAGE]%',
+          },
+        ],
+        type: 'p',
+      },
+      {//
+        children: [
+          {
+            text: 'Co-Founder 3: [PERCENTAGE]%',
+          },
+        ],
+        type: 'p',
+      },
+      {
+        children: [{ text: '2.2 Equity Type' }],
+        type: 'h2',
+      },
+
+      //
     ];
   }, []);
   return usePlateEditor<Value, (typeof editorPlugins)[number]>(
