@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useCallback, useState } from 'react';
@@ -15,7 +14,7 @@ export interface Version {
 
 export function useVersionHistory() {
   const editor = useEditorRef();
-  
+
   const [versions, setVersions] = useState<Version[]>([
     {
       id: '1',
@@ -44,25 +43,58 @@ export function useVersionHistory() {
       isCurrent: true,
       name: `Version ${new Date().toLocaleDateString()}`,
     };
-    
+
     setVersions(prev => [...prev.map(v => ({ ...v, isCurrent: false })), newVersion]);
   }, [editor]);
 
   const handleVersionSelect = useCallback((version: Version) => {
-    setVersions(prev => prev.map(v => ({ ...v, isCurrent: v.id === version.id })));
-    
+    // Before switching, save the current editor state to the current version
+    if (editor?.children) {
+      setVersions(prev => prev.map(v => {
+        if (v.isCurrent) {
+          // Save current editor content before switching
+          return { ...v, content: JSON.parse(JSON.stringify(editor.children)), isCurrent: false };
+        }
+        return { ...v, isCurrent: v.id === version.id };
+      }));
+    } else {
+      setVersions(prev => prev.map(v => ({ ...v, isCurrent: v.id === version.id })));
+    }
+
     // Load the version content into the editor
     if (editor && version.content) {
+      // For current version, use its saved content, or default if empty
+      let contentToLoad = version.content;
+      if (version.name === 'default version' && (!version.content || version.content.length === 0)) {
+        contentToLoad = getDefaultContent();
+      }
+
+      // Ensure contentToLoad is a valid array
+      const validContent = Array.isArray(contentToLoad) && contentToLoad.length > 0 
+        ? contentToLoad 
+        : [{ children: [{ text: '' }], type: 'p' }];
+
       try {
-        editor.children = version.content;
+        editor.children = validContent;
         if (typeof editor.normalize === 'function') {
           editor.normalize({ force: true });
         }
         if (typeof editor.onChange === 'function') {
-          editor.onChange();
+          // Call onChange without parameters - it reads from editor.children
+          editor.onChange(validContent);
         }
       } catch (error) {
         console.error('Error loading version content:', error);
+        // Fallback to default content on error
+        const fallbackContent = [{ children: [{ text: '' }], type: 'p' }];
+        try {
+          editor.children = fallbackContent;
+          if (typeof editor.onChange === 'function') {
+            editor.onChange(validContent);
+          }
+        } catch (fallbackError) {
+          console.error('Error with fallback content:', fallbackError);
+        }
       }
     }
   }, [editor]);
@@ -103,4 +135,86 @@ export function useVersionHistory() {
     handleSaveNewVersion,
     handleVersionSelect,
   };
+}
+
+// Helper function to get default content
+function getDefaultContent() {
+  return [
+    {
+      children: [{ text: "Co-Founders' Agreement" }],
+      type: 'h1',
+    },
+    {
+      children: [{ text: '1. Roles and Responsibilities' }],
+      type: 'h1',
+    },
+    {
+      children: [{ text: '1.1 Flexible Roles' }],
+      type: 'h2',
+    },
+    {
+      children: [
+        {
+          text: 'The Co-Founders acknowledge and agree that the roles and responsibilities within the Company will be dynamic and subject to change as the business evolves. Each Co-Founder commits to adapting their role as necessary for the benefit of the Company.',
+        },
+      ],
+      type: 'p',
+    },
+    {
+      children: [{ text: '1.2 Initial Role Allocation' }],
+      type: 'h2',
+    },
+    {
+      children: [
+        {
+          text: 'Notwithstanding the flexible nature of the roles, the initial primary responsibilities of each Co-Founder shall be as follows:',
+        },
+      ],
+      type: 'p',
+    },
+    {
+      children: [
+        {
+          text: 'Co-Founder 1: [DESCRIPTION OF INITIAL RESPONSIBILITIES]',
+        },
+      ],
+      type: 'p',
+    },
+    {
+      children: [
+        {
+          text: 'Co-Founder 2: [DESCRIPTION OF INITIAL RESPONSIBILITIES]',
+        },
+      ],
+      type: 'p',
+    },
+    {
+      children: [
+        {
+          text: 'Co-Founder 3: [DESCRIPTION OF INITIAL RESPONSIBILITIES]',
+        },
+      ],
+      type: 'p',
+    },
+    {
+      children: [{ text: '1.3 Duty to Company Success' }],
+      type: 'h2',
+    },
+    {
+      children: [
+        {
+          text: 'Each Co-Founder hereby affirms and agrees that their primary and overriding obligation shall be to promote and ensure the success of the Company. This obligation shall take precedence over individual interests or preferences in all business-related decisions and actions.',
+        },
+      ],
+      type: 'p',
+    },
+    {
+      children: [{ text: '2. Equity Distribution' }],
+      type: 'h1',
+    },
+    {
+      children: [{ text: '2.1 Initial Equity' }],
+      type: 'h2',
+    },
+  ];
 }

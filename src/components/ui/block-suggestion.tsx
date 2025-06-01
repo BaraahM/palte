@@ -49,14 +49,14 @@ import {
 } from '@udecode/plate/react';
 import { CheckIcon, XIcon } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import {
   type TDiscussion,
   discussionPlugin,
 } from '@/components/editor/plugins/discussion-plugin';
 import { suggestionPlugin } from '@/components/editor/plugins/suggestion-plugin';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 import { type TComment, Comment, formatCommentDate } from './comment';
 import { CommentCreateForm } from './comment-create-form';
@@ -299,7 +299,6 @@ export const useResolveSuggestion = (
 
     const previousPath = map.get(id);
 
-    // If there are no suggestion nodes in the corresponding path in the map, then update it.
     if (PathApi.isPath(previousPath)) {
       const nodes = api.suggestion.node({ id, at: previousPath, isText: true });
       const parentNode = api.node(previousPath);
@@ -365,7 +364,6 @@ export const useResolveSuggestion = (
         }),
       ];
 
-      // move line break to the end
       entries.sort(([, path1], [, path2]) => {
         return PathApi.isChild(path1, path2) ? -1 : 1;
       });
@@ -375,7 +373,6 @@ export const useResolveSuggestion = (
       let properties: any = {};
       let newProperties: any = {};
 
-      // overlapping suggestion
       entries.forEach(([node]) => {
         if (TextApi.isText(node)) {
           const dataList = api.suggestion.dataList(node);
@@ -409,7 +406,6 @@ export const useResolveSuggestion = (
 
                 break;
               }
-              // No default
             }
           });
         } else {
@@ -436,7 +432,6 @@ export const useResolveSuggestion = (
 
       if (!nodeData) return;
 
-      // const comments = data?.discussions.find((d) => d.id === id)?.comments;
       const comments =
         discussions.find((s: TDiscussion) => s.id === id)?.comments || [];
       const createdAt = new Date(nodeData.createdAt);

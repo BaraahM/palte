@@ -30,6 +30,12 @@ import {
   PencilLineIcon,
 } from 'lucide-react';
 
+import { commentsPlugin } from '@/components/editor/plugins/comments-plugin';
+import {
+  type TDiscussion,
+  discussionPlugin,
+} from '@/components/editor/plugins/discussion-plugin';
+import { suggestionPlugin } from '@/components/editor/plugins/suggestion-plugin';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -37,12 +43,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { commentsPlugin } from '@/components/editor/plugins/comments-plugin';
-import {
-  type TDiscussion,
-  discussionPlugin,
-} from '@/components/editor/plugins/discussion-plugin';
-import { suggestionPlugin } from '@/components/editor/plugins/suggestion-plugin';
 
 import {
   BlockSuggestionCard,
@@ -58,7 +58,6 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
   const commentsApi = editor.getApi(CommentsPlugin).comment;
   const blockPath = editor.api.findPath(element);
 
-  // avoid duplicate in table or column
   if (!blockPath || blockPath.length > 1) return;
 
   const draftCommentNode = commentsApi.node({ at: blockPath, isDraft: true });
@@ -134,7 +133,6 @@ const BlockCommentsContent = ({
 
   const [_open, setOpen] = React.useState(selected);
 
-  // in some cases, we may comment the multiple blocks
   const commentingCurrent =
     !!commentingBlock && PathApi.equals(blockPath, commentingBlock);
 
@@ -335,7 +333,6 @@ export const useResolvedDiscussion = (
 
     const previousPath = map.get(id);
 
-    // If there are no comment nodes in the corresponding path in the map, then update it.
     if (PathApi.isPath(previousPath)) {
       const nodes = api.comment.node({ id, at: previousPath });
 
@@ -346,7 +343,6 @@ export const useResolvedDiscussion = (
 
       return;
     }
-    // TODO: fix throw error
     setOption('uniquePathMap', new Map(map).set(id, blockPath));
   });
 
@@ -360,7 +356,6 @@ export const useResolvedDiscussion = (
       createdAt: new Date(d.createdAt),
     }))
     .filter((item: TDiscussion) => {
-      /** If comment cross blocks just show it in the first block */
       const commentsPathMap = getOption('uniquePathMap');
       const firstBlockPath = commentsPathMap.get(item.id);
 
