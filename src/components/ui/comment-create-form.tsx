@@ -221,7 +221,7 @@ export function CommentCreateForm({
   return (
     <div className={cn('flex w-full', className)}>
       <div className="mt-2 mr-1 shrink-0">
-        {/* Replace to your own backend or refer to potion */}
+        {/* backend */}
         <Avatar className="size-5">
           <AvatarImage alt={userInfo?.name} src={userInfo?.avatarUrl} />
           <AvatarFallback>{userInfo?.name?.[0]}</AvatarFallback>

@@ -46,7 +46,7 @@ export function FloatingToolbarButtons() {
           <ToolbarGroup>
             <TurnIntoDropdownMenu />
 
-            <MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
+<MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
               <BoldIcon />
             </MarkToolbarButton>
 
